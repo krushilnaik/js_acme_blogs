@@ -48,7 +48,7 @@ function createElemWithText(tagName = "p", textContent = "", className = "") {
 function createSelectOptions(data) {
   if (!data) return undefined;
 
-  return data.map(user => {
+  return data.map((user) => {
     const option = document.createElement("option");
 
     option.value = user.id;
@@ -75,18 +75,44 @@ function toggleCommentSection(postId) {
  * @param {number} postId
  */
 function toggleCommentButton(postId) {
-  //
+  const button = document.querySelector(`section[data-post-id="${postId}"]`);
+
+  if (!button) return;
+
+  const newText = `${button.textContent.startsWith("Show") ? "Hide" : "Show"} Comments`;
+
+  button.textContent = newText;
+
+  return button;
 }
 
 /**
  * @param {HTMLElement} parentElement
  */
 function deleteChildElements(parentElement) {
-  //
+  const childElement = parentElement.lastElementChild();
+
+  while (childElement) {
+    parentElement.removeChild(childElement);
+
+    childElement = parentElement.lastElementChild();
+  }
+
+  return parentElement;
 }
 
 function addButtonListeners() {
-  //
+  const buttons = document.querySelectorAll("main button");
+
+  if (buttons) {
+    buttons.forEach((button) => {
+      const { postId } = button.dataset;
+
+      button.addEventListener("click", (event) => toggleComments(event, postId));
+    });
+  }
+
+  return buttons;
 }
 
 function removeButtonListeners() {
