@@ -2,6 +2,7 @@
  *
  * @typedef {Object} User - schema of data returned from https://jsonplaceholder.typicode.com/users
  * @property {number} id
+ * @property {string} name
  * @property {string} username
  * @property {string} email
  * @property {any} address
@@ -33,21 +34,41 @@
  * @param {string} className
  */
 function createElemWithText(tagName = "p", textContent = "", className = "") {
-  //
+  const element = document.createElement(tagName);
+
+  element.textContent = textContent;
+  element.className = className;
+
+  return element;
 }
 
 /**
  * @param {User[]} data
  */
 function createSelectOptions(data) {
-  //
+  if (!data) return undefined;
+
+  return data.map(user => {
+    const option = document.createElement("option");
+
+    option.value = user.id;
+    option.textContent = user.name;
+
+    return option;
+  });
 }
 
 /**
  * @param {number} postId
  */
 function toggleCommentSection(postId) {
-  //
+  const section = document.querySelector(`section[data-post-id="${postId}"]`);
+
+  if (!section) return;
+
+  section.classList.toggle("hide");
+
+  return section;
 }
 
 /**
