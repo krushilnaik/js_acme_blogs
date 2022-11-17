@@ -116,18 +116,50 @@ function addButtonListeners() {
 }
 
 function removeButtonListeners() {
-  //
+  const buttons = document.querySelectorAll("main button");
+
+  if (buttons) {
+    buttons.forEach((button) => {
+      const { postId } = button.dataset;
+
+      button.removeEventListener("click", (event) => toggleComments(event, postId));
+    });
+  }
+
+  return buttons;
 }
 
 /**
  * @param {Reply[]} comments
  */
 function createComments(comments) {
-  //
+  const fragment = document.createDocumentFragment();
+
+  comments.forEach((comment) => {
+    const article = document.createElement("article");
+
+    const name = createElemWithText("h3", comment.name);
+    const body = createElemWithText("p", comment.body);
+    const email = createElemWithText("p", `From: ${comment.email}`);
+
+    article.append(name, body, email);
+
+    fragment.append(article);
+  });
+
+  return fragment;
 }
 
-function populateSelectMenu() {
-  //
+/**
+ * @param {Users[]} users
+ */
+function populateSelectMenu(users) {
+  const menu = document.getElementById("selectMenu");
+  const options = createSelectOptions(users);
+
+  menu.append(...options);
+
+  return menu;
 }
 
 async function getUsers() {
