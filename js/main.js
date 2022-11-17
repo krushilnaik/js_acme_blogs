@@ -28,6 +28,8 @@
  *
  */
 
+const JSON_PLACEHOLDER = "https://jsonplaceholder.typicode.com";
+
 /**
  * @param {string} tagName
  * @param {string} textContent
@@ -163,28 +165,48 @@ function populateSelectMenu(users) {
 }
 
 async function getUsers() {
-  //
+  try {
+    return await fetch(`${JSON_PLACEHOLDER}/users`).then((res) => res.json());
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /**
  * @param {number} userId
  */
 async function getUserPosts(userId) {
-  //
+  try {
+    return await fetch(`${JSON_PLACEHOLDER}/users/${userId}/posts`).then((res) =>
+      res.json()
+    );
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /**
  * @param {number} userId
  */
 async function getUser(userId) {
-  //
+  try {
+    return await fetch(`${JSON_PLACEHOLDER}/users/${userId}`).then((res) => res.json());
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /**
  * @param {number} postId
  */
 async function getPostComments(postId) {
-  //
+  try {
+    return await fetch(`${JSON_PLACEHOLDER}/posts/${postId}/comments`).then((res) =>
+      res.json()
+    );
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /**
