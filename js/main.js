@@ -213,21 +213,59 @@ async function getPostComments(postId) {
  * @param {number} postId
  */
 async function displayComments(postId) {
-  //
+  const comments = await getPostComments(postId);
+  const section = document.createElement("section");
+
+  section.dataset.postId = postId;
+  section.className = "comments hide";
+
+  const fragment = createComments(comments);
+
+  section.append(fragment);
+
+  return section;
 }
 
 /**
  * @param {Post[]} posts
  */
 async function createPosts(posts) {
-  //
+  const fragment = document.createDocumentFragment();
+
+  posts.forEach(async (post) => {
+    const article = document.createElement("article");
+    const author = await getUser(post.userId);
+
+    article.innerHTML = /*html*/ `
+      <h2>${post.title}</h2>
+      <p>${post.body}</p>
+      <p>Post ID: ${post.id}</p>
+      <p>Author: ${author.name} with ${author.company.name}</p>
+      <button data-postId="${post.id}">Show Comments</button>
+    `;
+
+    const section = await displayComments(post.id);
+
+    article.append(section);
+    fragment.append(article);
+  });
+
+  return fragment;
 }
 
 /**
  * @param {Post[]} posts
  */
 async function displayPosts(posts) {
-  //
+  const main = document.querySelector("main");
+
+  const element = posts
+    ? await createPosts(posts)
+    : `<p class="default-text">Select an Employee to display their posts.</p>`;
+
+  main.append(element);
+
+  return main;
 }
 
 /**
