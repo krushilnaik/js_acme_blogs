@@ -64,40 +64,42 @@ function createSelectOptions(data) {
  * @param {number} postId
  */
 function toggleCommentSection(postId) {
-  const section = document.querySelector(`section[data-post-id="${postId}"]`);
+  if (postId == undefined || postId == null) return undefined;
 
-  if (!section) return;
+  let element = document.querySelector(`section[data-post-id="${postId}"]`);
 
-  section.classList.toggle("hide");
+  if (element) element.classList.toggle("hide");
 
-  return section;
+  return element;
 }
 
 /**
  * @param {number} postId
  */
 function toggleCommentButton(postId) {
-  const button = document.querySelector(`section[data-post-id="${postId}"]`);
+  if (!postId) return;
 
-  if (!button) return;
+  let element = document.querySelector(`button[data-post-id="${postId}"]`);
 
-  const newText = `${button.textContent.startsWith("Show") ? "Hide" : "Show"} Comments`;
+  if (element) {
+    element.textContent =
+      element.textContent == "Show Comments" ? "Hide Comments" : "Show Comments";
+  }
 
-  button.textContent = newText;
-
-  return button;
+  return element;
 }
 
 /**
  * @param {HTMLElement} parentElement
  */
 function deleteChildElements(parentElement) {
-  const childElement = parentElement.lastElementChild();
+  if (!parentElement?.tagName) return;
 
-  while (childElement) {
-    parentElement.removeChild(childElement);
+  let child = parentElement.lastElementChild;
 
-    childElement = parentElement.lastElementChild();
+  while (child) {
+    parentElement.removeChild(child);
+    child = parentElement.lastElementChild;
   }
 
   return parentElement;
@@ -135,20 +137,19 @@ function removeButtonListeners() {
  * @param {Reply[]} comments
  */
 function createComments(comments) {
-  const fragment = document.createDocumentFragment();
+  if (!comments) return;
+
+  let fragment = document.createDocumentFragment();
 
   comments.forEach((comment) => {
-    const article = document.createElement("article");
+    let article = document.createElement("article");
 
-    const name = createElemWithText("h3", comment.name);
-    const body = createElemWithText("p", comment.body);
-    const email = createElemWithText("p", `From: ${comment.email}`);
-
-    article.append(name, body, email);
+    article.append(createElemWithText("h3", comment.name));
+    article.append(createElemWithText("p", comment.body));
+    article.append(createElemWithText("p", `From: ${comment.email}`));
 
     fragment.append(article);
   });
-
   return fragment;
 }
 
@@ -156,10 +157,12 @@ function createComments(comments) {
  * @param {Users[]} users
  */
 function populateSelectMenu(users) {
-  const menu = document.getElementById("selectMenu");
-  const options = createSelectOptions(users);
+  if (!users) return;
 
-  menu.append(...options);
+  let menu = document.getElementById("selectMenu");
+  let options = createSelectOptions(users);
+
+  options.forEach((option) => menu.append(option));
 
   return menu;
 }
@@ -176,6 +179,8 @@ async function getUsers() {
  * @param {number} userId
  */
 async function getUserPosts(userId) {
+  if (!userId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/users/${userId}/posts`).then((res) =>
       res.json()
@@ -189,6 +194,8 @@ async function getUserPosts(userId) {
  * @param {number} userId
  */
 async function getUser(userId) {
+  if (!userId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/users/${userId}`).then((res) => res.json());
   } catch (err) {
@@ -200,6 +207,8 @@ async function getUser(userId) {
  * @param {number} postId
  */
 async function getPostComments(postId) {
+  if (!postId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/posts/${postId}/comments`).then((res) =>
       res.json()
@@ -213,6 +222,8 @@ async function getPostComments(postId) {
  * @param {number} postId
  */
 async function displayComments(postId) {
+  if (!postId) return;
+
   const comments = await getPostComments(postId);
   const section = document.createElement("section");
 
@@ -230,26 +241,36 @@ async function displayComments(postId) {
  * @param {Post[]} posts
  */
 async function createPosts(posts) {
-  const fragment = document.createDocumentFragment();
+  if (posts == undefined || posts == null) return;
 
-  posts.forEach(async (post) => {
-    const article = document.createElement("article");
-    const author = await getUser(post.userId);
+  let fragment = document.createDocumentFragment();
 
-    article.innerHTML = /*html*/ `
-      <h2>${post.title}</h2>
-      <p>${post.body}</p>
-      <p>Post ID: ${post.id}</p>
-      <p>Author: ${author.name} with ${author.company.name}</p>
-      <button data-postId="${post.id}">Show Comments</button>
-    `;
+  for (let i = 0; i < posts.length; i++) {
+    let post = posts[i];
+    let article = document.createElement("article");
 
-    const section = await displayComments(post.id);
+    article.append(createElemWithText("h2", post.title));
+    article.append(createElemWithText("p", post.body));
+    article.append(createElemWithText("p", `Post ID: ${post.id}`));
+
+    let author = await getUser(post.userId);
+
+    article.append(
+      createElemWithText("p", `Author: ${author.name} with ${author.company.name}`)
+    );
+
+    article.append(createElemWithText("p", author.company.catchPhrase));
+
+    let button = createElemWithText("button", "Show Comments");
+
+    button.dataset.postId = post.id;
+    article.append(button);
+
+    let section = await displayComments(post.id);
 
     article.append(section);
     fragment.append(article);
-  });
-
+  }
   return fragment;
 }
 
@@ -257,45 +278,72 @@ async function createPosts(posts) {
  * @param {Post[]} posts
  */
 async function displayPosts(posts) {
-  const main = document.querySelector("main");
-
-  const element = posts
-    ? await createPosts(posts)
-    : `<p class="default-text">Select an Employee to display their posts.</p>`;
-
+  let main = document.querySelector("main");
+  let element;
+  if (posts != undefined && posts != null) {
+    element = await createPosts(posts);
+    //console.log(element);
+  } else {
+    element = createElemWithText("p", "Select an Employee to display their posts.");
+    element.classList.add("default-text");
+  }
   main.append(element);
-
-  return main;
+  return element;
 }
 
 /**
  * @param {Event} event
  * @param {number} postId
  */
-async function toggleComments(event, postId) {
-  //
+function toggleComments(event, postId) {
+  if (!event || postId == undefined || postId == null) return;
+
+  let result = [];
+  event.target.listener = true;
+  result.push(toggleCommentSection(postId));
+  result.push(toggleCommentButton(postId));
+  return result;
 }
 
 /**
  * @param {Post[]} posts
  */
 async function refreshPosts(posts) {
-  //
+  if (!posts) return;
+
+  const main = document.querySelector("main");
+
+  return [
+    removeButtonListeners(),
+    deleteChildElements(main),
+    await displayPosts(posts),
+    addButtonListeners(),
+  ];
 }
 
 /**
  * @param {Event} event
  */
 async function selectMenuChangeEventHandler(event) {
-  //
+  let userId = event?.target?.value || 1;
+  let posts = await getUserPosts(userId);
+  let refreshPostsArray = await refreshPosts(posts);
+  //console.log(result);
+  return [userId, posts, refreshPostsArray];
 }
 
 async function initPage() {
-  //
+  let users = await getUsers();
+  let select = populateSelectMenu(users);
+
+  return [users, select];
 }
 
 async function initApp() {
-  //
+  initPage();
+
+  let menu = document.getElementById("selectMenu");
+  menu.addEventListener("change", selectMenuChangeEventHandler);
 }
 
 document.addEventListener("DOMContentLoaded", initApp);
