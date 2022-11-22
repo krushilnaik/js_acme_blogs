@@ -64,9 +64,11 @@ function createSelectOptions(data) {
  * @param {number} postId
  */
 function toggleCommentSection(postId) {
+  if (postId == undefined || postId == null) return undefined;
+
   const section = document.querySelector(`section[data-post-id="${postId}"]`);
 
-  if (!section) return;
+  if (!section) return null;
 
   section.classList.toggle("hide");
 
@@ -77,9 +79,11 @@ function toggleCommentSection(postId) {
  * @param {number} postId
  */
 function toggleCommentButton(postId) {
-  const button = document.querySelector(`section[data-post-id="${postId}"]`);
+  if (postId == undefined || postId == null) return;
 
-  if (!button) return;
+  const button = document.querySelector(`button[data-post-id="${postId}"]`);
+
+  if (!button) return null;
 
   const newText = `${button.textContent.startsWith("Show") ? "Hide" : "Show"} Comments`;
 
@@ -92,12 +96,14 @@ function toggleCommentButton(postId) {
  * @param {HTMLElement} parentElement
  */
 function deleteChildElements(parentElement) {
-  const childElement = parentElement.lastElementChild();
+  if (!parentElement?.tagName) return;
+
+  let childElement = parentElement.lastElementChild;
 
   while (childElement) {
     parentElement.removeChild(childElement);
 
-    childElement = parentElement.lastElementChild();
+    childElement = parentElement.lastElementChild;
   }
 
   return parentElement;
@@ -135,6 +141,8 @@ function removeButtonListeners() {
  * @param {Reply[]} comments
  */
 function createComments(comments) {
+  if (!comments) return;
+
   const fragment = document.createDocumentFragment();
 
   comments.forEach((comment) => {
@@ -156,6 +164,8 @@ function createComments(comments) {
  * @param {Users[]} users
  */
 function populateSelectMenu(users) {
+  if (!users) return;
+
   const menu = document.getElementById("selectMenu");
   const options = createSelectOptions(users);
 
@@ -176,6 +186,8 @@ async function getUsers() {
  * @param {number} userId
  */
 async function getUserPosts(userId) {
+  if (!userId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/users/${userId}/posts`).then((res) =>
       res.json()
@@ -189,6 +201,8 @@ async function getUserPosts(userId) {
  * @param {number} userId
  */
 async function getUser(userId) {
+  if (!userId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/users/${userId}`).then((res) => res.json());
   } catch (err) {
@@ -200,6 +214,8 @@ async function getUser(userId) {
  * @param {number} postId
  */
 async function getPostComments(postId) {
+  if (!postId) return;
+
   try {
     return await fetch(`${JSON_PLACEHOLDER}/posts/${postId}/comments`).then((res) =>
       res.json()
@@ -213,6 +229,8 @@ async function getPostComments(postId) {
  * @param {number} postId
  */
 async function displayComments(postId) {
+  if (!postId) return;
+
   const comments = await getPostComments(postId);
   const section = document.createElement("section");
 
@@ -230,17 +248,20 @@ async function displayComments(postId) {
  * @param {Post[]} posts
  */
 async function createPosts(posts) {
+  if (posts == undefined || posts == null) return;
+
   const fragment = document.createDocumentFragment();
 
   posts.forEach(async (post) => {
     const article = document.createElement("article");
     const author = await getUser(post.userId);
 
-    article.innerHTML = /*html*/ `
+    article.innerHTML += /*html*/ `
       <h2>${post.title}</h2>
       <p>${post.body}</p>
       <p>Post ID: ${post.id}</p>
       <p>Author: ${author.name} with ${author.company.name}</p>
+      <p>${author.company.catchPhrase}</p>
       <button data-postId="${post.id}">Show Comments</button>
     `;
 
@@ -265,37 +286,63 @@ async function displayPosts(posts) {
 
   main.append(element);
 
-  return main;
+  return element;
 }
 
 /**
  * @param {Event} event
  * @param {number} postId
  */
-async function toggleComments(event, postId) {
-  //
+function toggleComments(event, postId) {
+  if (!event || postId == undefined || postId == null) return;
+
+  let result = [];
+  event.target.listener = true;
+  result.push(toggleCommentSection(postId));
+  result.push(toggleCommentButton(postId));
+  return result;
 }
 
 /**
  * @param {Post[]} posts
  */
 async function refreshPosts(posts) {
-  //
+  if (!posts) return;
+
+  const main = document.querySelector("main");
+
+  return [
+    removeButtonListeners(),
+    deleteChildElements(main),
+    await displayPosts(posts),
+    addButtonListeners(),
+  ];
 }
 
 /**
  * @param {Event} event
  */
 async function selectMenuChangeEventHandler(event) {
-  //
+  const userId = event?.target?.value || 1;
+  const posts = await getUserPosts(userId);
+  const refreshPostsArray = await refreshPosts(posts);
+
+  return [userId, posts, refreshPostsArray];
 }
 
 async function initPage() {
-  //
+  const users = await getUsers();
+  const select = populateSelectMenu(users);
+
+  return [users, select];
 }
 
 async function initApp() {
-  //
+  initPage();
+
+  document
+    .getElementById("selectMenu")
+    .addEventListener("change", selectMenuChangeEventHandler);
 }
 
 document.addEventListener("DOMContentLoaded", initApp);
