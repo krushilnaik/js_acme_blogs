@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3564f481-4a20-4a84-8a13-51a2cee1bd9d/deploy-status)](https://app.netlify.com/sites/peaceful-gingersnap-73276e/deploys)
+
 # Acme Blogs
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/gitdagray/js_acme_blogs)
