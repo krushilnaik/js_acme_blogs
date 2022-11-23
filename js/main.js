@@ -252,7 +252,7 @@ async function createPosts(posts) {
 
   const fragment = document.createDocumentFragment();
 
-  posts.forEach(async (post) => {
+  for (const post of posts) {
     const article = document.createElement("article");
     const author = await getUser(post.userId);
 
@@ -269,7 +269,7 @@ async function createPosts(posts) {
 
     article.append(section);
     fragment.append(article);
-  });
+  }
 
   return fragment;
 }
@@ -282,7 +282,11 @@ async function displayPosts(posts) {
 
   const element = posts
     ? await createPosts(posts)
-    : `<p class="default-text">Select an Employee to display their posts.</p>`;
+    : createElemWithText("p", "Select an Employee to display their posts.");
+
+  if (!posts) {
+    element.className = "default-text";
+  }
 
   main.append(element);
 
