@@ -327,6 +327,8 @@ async function refreshPosts(posts) {
  * @param {Event} event
  */
 async function selectMenuChangeEventHandler(event) {
+  if (!event) return;
+
   const userId = event?.target?.value || 1;
   const posts = await getUserPosts(userId);
   const refreshPostsArray = await refreshPosts(posts);
