@@ -262,7 +262,7 @@ async function createPosts(posts) {
       <p>Post ID: ${post.id}</p>
       <p>Author: ${author.name} with ${author.company.name}</p>
       <p>${author.company.catchPhrase}</p>
-      <button data-postId="${post.id}">Show Comments</button>
+      <button data-post-id="${post.id}">Show Comments</button>
     `;
 
     const section = await displayComments(post.id);
